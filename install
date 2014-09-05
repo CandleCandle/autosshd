@@ -26,11 +26,12 @@ fi
 if ! [ -e "$key_file" ] ; then
   echo "Generating keypair at $key_file ..."
   ssh-keygen -b 4096 -f "$key_file" -N ''
+
+  # only allow port forwarding port 22 to localhost for this key
+  prepend='no-pty,command="/bin/false",permitopen="127.0.0.1:22" '
+  sed -i "s~^~$prepend~" "$key_file.pub"
 fi
 
-# only allow port forwarding port 22 to localhost for this key
-prepend='no-pty,command="/bin/false",permitopen="127.0.0.1:22" '
-sed -i "s~^~$prepend~" "$key_file.pub"
 
 
 if ! [ -e "$ssh_config_file" ] ; then
