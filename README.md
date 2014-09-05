@@ -15,7 +15,7 @@ hostname=<insert hostname here>
 git clone https://github.com/CandleCandle/autosshd.git autosshd
 cd autosshd
 sudo ./install $hostname
-sudo vim /etc/autosshd/ssh_config
+sudo vim /etc/autosshd-$hostname/ssh_config
 sudo ssh -F /etc/autosshd-$hostname/ssh_config tunnel
 sudo service autosshd-$hostname start
 ```

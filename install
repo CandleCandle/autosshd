@@ -1,7 +1,15 @@
 #!/bin/bash
-set -eu
 
 hostname="$1"
+
+if [ "x$1x" = "xx" ]; then
+    echo "Usage: install hostname"
+	echo "    hostname    address of the target server to which a"
+	echo "                reverse ssh tunnel should be maintained"
+	exit
+fi
+
+set -eu
 
 sudo apt-get install autossh
 
@@ -19,6 +27,11 @@ if ! [ -e "$key_file" ] ; then
   echo "Generating keypair at $key_file ..."
   ssh-keygen -b 4096 -f "$key_file" -N ''
 fi
+
+# only allow port forwarding port 22 to localhost for this key
+prepend='no-pty,command="/bin/false",permitopen="127.0.0.1:22" '
+sed -i 's~^~$prepend~' "$key_file.pub"
+
 
 if ! [ -e "$ssh_config_file" ] ; then
   echo "Creating template ssh_config at $ssh_config_file ..."
