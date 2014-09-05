@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eu
+
+hostname="$1"
+
+sudo apt-get install autossh
+
+service_name="autosshd-$hostname"
+config_dir="/etc/$service_name"
+key_file="$config_dir/id_rsa"
+ssh_config_file="$config_dir/ssh_config"
+
+if ! [ -e "$config_dir" ] ; then
+  echo "Creating config dir $config_dir ..."
+  mkdir -p "$config_dir/"
+fi
+
+if ! [ -e "$key_file" ] ; then
+  echo "Generating keypair at $key_file ..."
+  ssh-keygen -b 4096 -f "$key_file" -N ''
+fi
+
+if ! [ -e "$ssh_config_file" ] ; then
+  echo "Creating template ssh_config at $ssh_config_file ..."
+  cat << EOF >> $ssh_config_file
+Host tunnel
+  HostName $hostname
+  Port 1234
+  User bob
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  RemoteForward 127.0.0.1:10001 127.0.0.1:22
+  ExitOnForwardFailure yes
+  IdentityFile $key_file
+  UserKnownHostsFile $config_dir/known_hosts
+EOF
+fi
+
+echo 'Installing init.d script...'
+cp ./autosshd "/etc/init.d/$service_name"
+sed -i "s~CONFIG_LOCATION_PLACEHOLDER~$ssh_config_file~" "/etc/init.d/$service_name"
+sed -i "s~SERVICE_NAME_PLACEHOLDER~$service_name~" "/etc/init.d/$service_name"
+
+echo 'Configuring run levels...'
+update-rc.d "$service_name" defaults
+
+echo 'done.'
