@@ -13,9 +13,9 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 . /lib/lsb/init-functions
 
 DAEMON=/usr/bin/autossh
-PIDFILE=/var/run/autosshd.pid
+PIDFILE=/var/run/SERVICE_NAME_PLACEHOLDER.pid
 AUTOSSH_OPTS="-M 0 -f -nNT -F CONFIG_LOCATION_PLACEHOLDER tunnel"
-LOCKFILE=/var/lock/autosshd
+LOCKFILE=/var/lock/SERVICE_NAME_PLACEHOLDER
 
 export AUTOSSH_PIDFILE="$PIDFILE"
 
